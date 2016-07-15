@@ -1,0 +1,37 @@
+#!/bin/bash
+
+while [[ $# -gt 0 ]]
+do
+	opt="$1"
+	case $opt in 
+		-f|--file)
+			file="$2"
+			shift
+		;;
+		-V|--view)
+			view=1
+		;;
+		-S|--set)
+			set=1
+		;;
+	esac
+	shift
+done
+
+if [[ $view == 1 ]]
+then
+	(echo -e "key=value\n----=----" && cat $file) | column -t -s "="
+fi
+
+if [[ $set == 1 ]]
+then
+	while read line
+	do
+		key=$(echo $line | awk -F "=" '{ print $1 }')
+		value=$(echo $line | awk -F "=" '{ print $2 }')
+		if [[ "$key" != "" ]]
+		then
+			declare "${key}"="${value}"
+		fi
+	done < $file
+fi
