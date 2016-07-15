@@ -14,6 +14,9 @@ do
 		-S|--set)
 			set=1
 		;;
+		-h|--help)
+			echo -e "\npINI (parse INI) is a script to parse INI files in bash.\n\n\t-f|--file\tSpecify the ini file to parse.\n\t-V|--view\tDisplay the ini contents in a table\n\t-S|--set\tSets all the settings in the configurations files as variables.\n\t-h|--help\tDisplays this page.\n"
+		;;
 	esac
 	shift
 done
