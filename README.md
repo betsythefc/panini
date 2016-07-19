@@ -7,6 +7,7 @@ Supports both Bash 3 & 4.
 
 Bash 3 sets variables in sections like:
 
+```
 Array {
 	"key0=value0"
 	"key1=value1"
@@ -14,14 +15,16 @@ Array {
 
 echo ${Array[0]}
 key0=value0
+```
 
 Bash 4 sets variables in sections like:
 
+```
 Array {
-
 	"key0" => "value0"
 	"key1" => "value1"
 }
 
 echo ${Array[key0]}
 value0
+```
