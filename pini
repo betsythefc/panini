@@ -24,7 +24,11 @@ do
 	shift
 done
 
-bashVersion=$(echo ${BASH_VERSION%%[^0-9.]*})
+bashVersion=$(echo ${BASH_VERSION%%[^0-9.]*} | grep -o ^[0-9]*)
+if [[ $bashVersion == 3 ]]
+then
+	echo -e "\n!!! Warning: running in bash \"$BASH_VERSION\". The -S feature will not set sectioned variables into associative arrays. !!!\n" 
+fi
 
 ## View ini file in a column format
 if [[ $view == 1 ]]
@@ -45,17 +49,27 @@ then
 		then
 			section=$(echo $key | sed "s/\[//g" | sed "s/\]//g")
 			eval unset "${section}"
-			declare -a "${section}"
+			if [[ $bashVersion == 3 ]]
+			then
+				declare -a "${section}"
+			elif [[ $bashVersion == 4 ]]
+			then
+				declare -A "${section}"
+			fi
 		elif [[ ( "$key" != "" ) && ( "$commentOrNot" != ";" ) ]]
 		then
 			if [[ "$section" == "" ]]
 			then
 				declare "${key}"="${value}"
 			else
-				declare "${section}_${key}"="${value}"
-				# eval $section+=${key} #=${value}"
-				element=$(eval echo \${#$section[@]})
-				eval $section[$element]="${key}=\"${value}\""
+				if [[ $bashVersion == 3 ]]
+				then
+					element=$(eval echo \${#$section[@]})
+					eval $section[$element]="${key}=\"${value}\""
+				elif [[ $bashVersion == 4 ]]
+				then
+					read "$section[$key]" <<< "$value"
+				fi
 			fi
 		fi
 	done < $file

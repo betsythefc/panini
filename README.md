@@ -3,5 +3,25 @@ pINI
 
 pINI (parse INI) is a bash ini parser that can display or set ini configurations files into variables.
 
-Currently only supports Bash 3.
-I am adding support for Bash 4 soon.
+Supports both Bash 3 & 4.
+
+Bash 3 sets variables in sections like:
+
+Array {
+	"key0=value0"
+	"key1=value1"
+}
+
+echo ${Array[0]}
+key0=value0
+
+Bash 4 sets variables in sections like:
+
+Array {
+
+	"key0" => "value0"
+	"key1" => "value1"
+}
+
+echo ${Array[key0]}
+value0
