@@ -1,7 +1,7 @@
-pINI
+panINI
 ====
 
-pINI (parse INI) is a bash ini parser that can display or set ini configurations files into variables.
+panINI (parse all INI) is a bash ini parser that can display or set ini configurations files into variables.
 
 Supports both Bash 3 & 4.
 

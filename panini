@@ -18,7 +18,7 @@ do
 			comments=1
 		;;
 		-h|--help)
-			echo -e "\npINI v0.8\tWritten by Bryce McNab\n\npINI (parse INI) is an ini parser written in bash.\n\n\t-f|--file\tSpecify the ini file to parse.\n\t-V|--view\tDisplay the ini contents in a table\n\t-S|--set\tSets all the settings in the configurations files as variables.\n\t-c|--comments\tDisplays all comments in the .ini file.\n\t-h|--help\tDisplays this page.\n\n\tSections: ini files can contain \[sections\]. These are parsed as arrays with key=value set as an element.\n\nNOTE: pINI is written for Bash 3.2.57 at the moment.\n"
+			echo -e "\npanINI v1.0\tWritten by Bryce McNab\n\npanINI (parse all INI) is an ini parser written in bash.\n\n\tpanINI: pan is a common root word meaning "all", and frankly it makes the name a great food.\n\n\t-f|--file\tSpecify the ini file to parse.\n\t-V|--view\tDisplay the ini contents in a table\n\t-S|--set\tSets all the settings in the configurations files as variables.\n\t-c|--comments\tDisplays all comments in the .ini file.\n\t-h|--help\tDisplays this page.\n\n\tSections: ini files can contain \[sections\]. These are parsed as arrays with key=value set as an element.\n"
 		;;
 	esac
 	shift
