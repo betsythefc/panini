@@ -30,16 +30,23 @@ then
 	echo -e "\n!!! Warning: running in bash \"$BASH_VERSION\". The -S feature will not set sectioned variables into associative arrays. !!!\n" 
 fi
 
-# guessedFormat=$(echo $file | grep -o "\..*$" | sed "s/\.//g")
-# if [[ "$guessedFormat" == "ini" ]]
-# then
-#	format=ini
-# fi
-
 ## View ini file in a column format
 if [[ $view == 1 ]]
 then
 	(echo -e "key=value\n----=----" && cat $file | grep -v "^;" | grep -v "^\[") | column -t -s "="
+	# while read line
+	# do
+	#	key=$(echo $line | awk -F "=" '{ print $1 }')
+	#	if [[ $key =~ ^\[.*$ ]]
+	#	then
+	#		echo -e "\n"
+	#		echo $key | sed "s/\[//g" | sed "s/\]//g"
+	#	elif [[ $key != "" ]]
+	#	then
+	#		value=$(echo $line | awk -F "=" '{ print $2 }')
+	#		echo -e "$key\t$value"
+	#	fi
+	# done < $file
 fi
 
 ## Set variables in ini files: use ". ./pini" to set variables in the current shell. 
