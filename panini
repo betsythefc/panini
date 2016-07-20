@@ -18,7 +18,7 @@ do
 			comments=1
 		;;
 		-h|--help)
-			echo -e "\npanINI v1.0\tWritten by Bryce McNab\n\npanINI (parse all INI) is an ini parser written in bash.\n\n\tpanINI: pan is a common root word meaning "all", and frankly it makes the name a great food.\n\n\t-f|--file\tSpecify the ini file to parse.\n\t-V|--view\tDisplay the ini contents in a table\n\t-S|--set\tSets all the settings in the configurations files as variables.\n\t-c|--comments\tDisplays all comments in the .ini file.\n\t-h|--help\tDisplays this page.\n\n\tSections: ini files can contain \[sections\]. These are parsed as arrays with key=value set as an element.\n"
+			echo -e "\npanINI v1.0\tWritten by Bryce McNab\n\npanINI (parse all INI) is an ini parser written in bash.\n\n\tpanINI: pan is a common root word meaning "all", and frankly it makes the name a great food.\n\n\t-f|--file\tSpecify the ini file to parse.\n\t-V|--view\tDisplay the ini contents in a table\n\t-S|--set\tSets all the settings in the configurations files as variables.\n\t-c|--comments\tDisplays all comments in the .ini file.\n\t-h|--help\tDisplays this page.\n\n\tSections: ini files can contain \[sections\]. These are parsed as arrays with key=value set as an element in bash 3, and as associative arrays in bash 4.\n"
 		;;
 	esac
 	shift
@@ -29,6 +29,12 @@ if [[ $bashVersion == 3 ]]
 then
 	echo -e "\n!!! Warning: running in bash \"$BASH_VERSION\". The -S feature will not set sectioned variables into associative arrays. !!!\n" 
 fi
+
+# guessedFormat=$(echo $file | grep -o "\..*$" | sed "s/\.//g")
+# if [[ "$guessedFormat" == "ini" ]]
+# then
+#	format=ini
+# fi
 
 ## View ini file in a column format
 if [[ $view == 1 ]]
@@ -44,7 +50,7 @@ then
 		key=$(echo $line | awk -F "=" '{ print $1 }')
 		commentOrNot=$(echo $key | grep -o "^\;")
 		value=$(echo $line | awk -F "=" '{ print $2 }')
-		
+
 		if [[ $key =~ ^\[.*$ ]]
 		then
 			section=$(echo $key | sed "s/\[//g" | sed "s/\]//g")
