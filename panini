@@ -17,11 +17,8 @@ do
 		-c|--comments)
 			comments=1
 		;;
-		-C|--change)
-			change=1
-			sectionToChange=$2
-			keyToChange=$3
-			valueToChange=$4
+		-m|--modify)
+			modify=1
 		;;
 		-h|--help)
 			echo -e "
@@ -35,7 +32,7 @@ panINI (parse all INI) is an ini parser written in bash.
 	-V|--view	Display the ini contents in a table
 	-S|--set	Sets all the settings in the configurations files as variables.
 	-c|--comments	Displays all comments in the .ini file.
-	-C|--change	Change value of key in ini file.
+	-m|--modify	Modify value of key in ini file.
 	-h|--help	Displays this page.
 
 	Sections: ini files can contain \[sections\]. These are parsed as arrays with key=value set as an element in bash 3, and as associative arrays in bash 4.
