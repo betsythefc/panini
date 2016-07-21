@@ -8,17 +8,17 @@ do
 			file="$2"
 			shift
 		;;
-		-V|--view)
-			view=1
+		-t|--table)
+			table=1
 		;;
 		-S|--set)
 			set=1
 		;;
-		-c|--comments)
-			comments=1
-		;;
 		-m|--modify)
 			modify=1
+		;;
+		-v|--verbose)
+			verbose=1
 		;;
 		-h|--help)
 			echo -e "
@@ -29,10 +29,10 @@ panINI (parse all INI) is an ini parser written in bash.
 	panINI: pan is a common root word meaning "all", and frankly it makes the name a great food.
 
 	-f|--file	Specify the ini file to parse.
-	-V|--view	Display the ini contents in a table
+	-t|--table	Display the ini contents in a table
 	-S|--set	Sets all the settings in the configurations files as variables.
-	-c|--comments	Displays all comments in the .ini file.
 	-m|--modify	Modify value of key in ini file.
+	-v|--verbose	Show verbose output.
 	-h|--help	Displays this page.
 
 	Sections: ini files can contain \[sections\]. These are parsed as arrays with key=value set as an element in bash 3, and as associative arrays in bash 4.
@@ -48,50 +48,104 @@ then
 	echo -e "\n!!! Warning: running in bash \"$BASH_VERSION\". The -S feature will not set sectioned variables into associative arrays. !!!\n" 
 fi
 
-## View ini file in a column format
-if [[ $view == 1 ]]
-then
-	(echo -e "key=value\n----=----" && cat $file | grep -v "^;" | grep -v "^\[") | column -t -s "="
-fi
+while read line
+do
+	key=$(echo $line | awk -F "=" '{ print $1 }')
+	commentOrNot=$(echo $key | grep -o "^\;")
+	value=$(echo $line | awk -F "=" '{ print $2 }')
 
-## Set variables in ini files: use ". ./pini" to set variables in the current shell. 
-if [[ $set == 1 ]]
-then
-	while read line
-	do
-		key=$(echo $line | awk -F "=" '{ print $1 }')
-		commentOrNot=$(echo $key | grep -o "^\;")
-		value=$(echo $line | awk -F "=" '{ print $2 }')
-
-		if [[ $key =~ ^\[.*$ ]]
+	if [[ $key =~ ^\[.*$ ]]
+	then
+	section=$(echo $key | sed "s/\[//g" | sed "s/\]//g")
+	eval unset "${section}"
+		
+		# Declare section array
+		if [[ ( $bashVersion == 3 ) && ( $set == 1 ) ]]
 		then
-			section=$(echo $key | sed "s/\[//g" | sed "s/\]//g")
-			eval unset "${section}"
-			if [[ $bashVersion == 3 ]]
-			then
-				declare -a "${section}"
-			elif [[ $bashVersion == 4 ]]
-			then
-				declare -A "${section}"
-			fi
-		elif [[ ( "$key" != "" ) && ( "$commentOrNot" != ";" ) ]]
+			declare -a "${section}"
+		elif [[ ( $bashVersion == 4 ) && ( $set == 1 ) ]]
 		then
-			if [[ "$section" == "" ]]
+			declare -A "${section}"
+		fi
+			
+		# Display if -t is set
+		if [[ $table == 1 ]]
+		then 
+			echo -e "\n${section}\n====="
+		fi
+		
+		# Display if -v is set
+		if [[ $verbose == 1 ]]
+		then
+			echo -e "New section: $section"
+		fi
+	elif [[ ( "$key" != "" ) && ( "$commentOrNot" != ";" ) ]]
+	then
+		if [[ "$section" == "" ]]
+		then
+			# Set the variable names after the key as the value.
+			if [[ $set == 1 ]]
 			then
 				declare "${key}"="${value}"
-			else
-				if [[ $bashVersion == 3 ]]
+				verify=$(eval echo \$${key})
+				if [[ "$verify" == "$value" ]]
+				then
+					verification=good
+				fi
+			fi
+
+			# Display if -t is set
+			if [[ $table == 1 ]]
+			then
+				echo -e "${key}\t${value}"
+			fi
+	
+			# Display if -v is set
+			if [[ $verbose == 1 ]]
+			then
+				if [[ "$verification" == "good" ]]
+				then
+					echo -e "Variable \"${key}\" set to \"${value}\""
+				fi
+			fi
+		else
+			if [[ $bashVersion == 3 ]]
+			then
+				# Set key and value as elements in array
+				if [[ $set == 1 ]]
 				then
 					element=$(eval echo \${#$section[@]})
 					eval $section[$element]="${key}=\"${value}\""
-				elif [[ $bashVersion == 4 ]]
+				fi
+
+				# Display if -t is set
+				if [[ $table == 1 ]]
+				then
+					echo -e "${key}\t${value}"
+				fi
+	
+				# Display is -v is set
+				if [[ ( $verbose == 1 ) && ( $key != "" )]]
+				then
+					echo -e "\tVariable \"${key}\" set to \"${value}\""
+				fi
+			elif [[ $bashVersion == 4 ]]
+			then
+				# Set value in associative array with key
+				if [[ $set == 1 ]]
 				then
 					read "$section[$key]" <<< "$value"
 				fi
+
+				# Display if -t is set
+				if [[ $table == 1 ]]
+				then
+					echo -e "${key}\t${value}"
+				fi
 			fi
 		fi
-	done < $file
-fi
+	fi
+done < $file
 
 ## View comments
 if [[ $comments == 1 ]]
@@ -109,4 +163,4 @@ then
 fi
 
 # Clean variables
-unset file view set comments section key value
+unset file table set comments section key value modify verbose
