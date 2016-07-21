@@ -10,15 +10,19 @@ do
 		;;
 		-t|--table)
 			table=1
+			shift
 		;;
 		-S|--set)
 			set=1
+			shift
 		;;
 		-m|--modify)
 			modify=1
+			shift
 		;;
 		-v|--verbose)
 			verbose=1
+			shift
 		;;
 		-h|--help)
 			echo -e "
