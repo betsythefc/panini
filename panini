@@ -17,8 +17,29 @@ do
 		-c|--comments)
 			comments=1
 		;;
+		-C|--change)
+			change=1
+			sectionToChange=$2
+			keyToChange=$3
+			valueToChange=$4
+		;;
 		-h|--help)
-			echo -e "\npanINI v1.0\tWritten by Bryce McNab\n\npanINI (parse all INI) is an ini parser written in bash.\n\n\tpanINI: pan is a common root word meaning "all", and frankly it makes the name a great food.\n\n\t-f|--file\tSpecify the ini file to parse.\n\t-V|--view\tDisplay the ini contents in a table\n\t-S|--set\tSets all the settings in the configurations files as variables.\n\t-c|--comments\tDisplays all comments in the .ini file.\n\t-h|--help\tDisplays this page.\n\n\tSections: ini files can contain \[sections\]. These are parsed as arrays with key=value set as an element in bash 3, and as associative arrays in bash 4.\n"
+			echo -e "
+panINI v1.0	Written by Bryce McNab
+
+panINI (parse all INI) is an ini parser written in bash.
+
+	panINI: pan is a common root word meaning "all", and frankly it makes the name a great food.
+
+	-f|--file	Specify the ini file to parse.
+	-V|--view	Display the ini contents in a table
+	-S|--set	Sets all the settings in the configurations files as variables.
+	-c|--comments	Displays all comments in the .ini file.
+	-C|--change	Change value of key in ini file.
+	-h|--help	Displays this page.
+
+	Sections: ini files can contain \[sections\]. These are parsed as arrays with key=value set as an element in bash 3, and as associative arrays in bash 4.
+"
 		;;
 	esac
 	shift
@@ -34,19 +55,6 @@ fi
 if [[ $view == 1 ]]
 then
 	(echo -e "key=value\n----=----" && cat $file | grep -v "^;" | grep -v "^\[") | column -t -s "="
-	# while read line
-	# do
-	#	key=$(echo $line | awk -F "=" '{ print $1 }')
-	#	if [[ $key =~ ^\[.*$ ]]
-	#	then
-	#		echo -e "\n"
-	#		echo $key | sed "s/\[//g" | sed "s/\]//g"
-	#	elif [[ $key != "" ]]
-	#	then
-	#		value=$(echo $line | awk -F "=" '{ print $2 }')
-	#		echo -e "$key\t$value"
-	#	fi
-	# done < $file
 fi
 
 ## Set variables in ini files: use ". ./pini" to set variables in the current shell. 
@@ -95,6 +103,12 @@ then
 	do
 		echo $line | grep "^;"
 	done < $file
+fi
+
+if [[ $change == 1 ]]
+then
+	keyLine=$(grep ${keyToChange})
+	sed "s/${keyLine}/${keyToChange}=${valueToChange}/" $file
 fi
 
 # Clean variables
