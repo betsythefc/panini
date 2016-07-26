@@ -18,6 +18,23 @@ do
 		;;
 		-m|--modify)
 			modify=1
+			argumentsToModify=("$2" "$3" "$4")
+			for argument in ${argumentsToModify[@]}
+			do
+				if [[ $argument =~ ^s\= ]]
+				then
+					sectionToModify=$(echo $argument | awk -F "=" '{ print $2 }')
+					echo $sectionToModify
+				elif [[ $argument =~ ^k\= ]]
+				then
+					keyToModify=$(echo $argument | awk -F "=" '{ print $2 }')
+					echo $keyToModify
+				elif [[ $argument =~ ^v\= ]]
+				then
+					valueToModify=$(echo $argument | awk -F "=" '{ print $2 }')
+					echo $valueToModify
+				fi
+			done
 			shift
 		;;
 		-v|--verbose)
@@ -147,6 +164,12 @@ do
 					echo -e "${key}\t${value}"
 				fi
 			fi
+			
+			if [[ ( $modify == 1 ) && ( "$key" == "$keyToModify" ) && ( "$section" == "$sectionToModify" ) ]]
+			then
+				# echo $line | sed "s/$line/$key=$valueToModify/" $file
+				
+			fi
 		fi
 	fi
 done < $file
@@ -158,12 +181,6 @@ then
 	do
 		echo $line | grep "^;"
 	done < $file
-fi
-
-if [[ $change == 1 ]]
-then
-	keyLine=$(grep ${keyToChange})
-	sed "s/${keyLine}/${keyToChange}=${valueToChange}/" $file
 fi
 
 # Clean variables
