@@ -24,15 +24,12 @@ do
 				if [[ $argument =~ ^s\= ]]
 				then
 					sectionToModify=$(echo $argument | awk -F "=" '{ print $2 }')
-					echo $sectionToModify
 				elif [[ $argument =~ ^k\= ]]
 				then
 					keyToModify=$(echo $argument | awk -F "=" '{ print $2 }')
-					echo $keyToModify
 				elif [[ $argument =~ ^v\= ]]
 				then
 					valueToModify=$(echo $argument | awk -F "=" '{ print $2 }')
-					echo $valueToModify
 				fi
 			done
 			shift
@@ -74,11 +71,13 @@ do
 	key=$(echo $line | awk -F "=" '{ print $1 }')
 	commentOrNot=$(echo $key | grep -o "^\;")
 	value=$(echo $line | awk -F "=" '{ print $2 }')
+	sectionUnformatted=""
 
 	if [[ $key =~ ^\[.*$ ]]
 	then
-	section=$(echo $key | sed "s/\[//g" | sed "s/\]//g")
-	eval unset "${section}"
+		sectionUnformatted=$key
+		section=$(echo $sectionUnformatted | sed "s/\[//g" | sed "s/\]//g")
+		eval unset "${section}"
 		
 		# Declare section array
 		if [[ ( $bashVersion == 3 ) && ( $set == 1 ) ]]
@@ -167,8 +166,28 @@ do
 			
 			if [[ ( $modify == 1 ) && ( "$key" == "$keyToModify" ) && ( "$section" == "$sectionToModify" ) ]]
 			then
-				# echo $line | sed "s/$line/$key=$valueToModify/" $file
+				keyValueLineNumbers=($(grep -n "$line" $file | awk -F ":" '{ print $1 }'))
+				for lineNumber in ${keyValueLineNumbers[@]}
+				do
+					elementNum=0
+					lineNumberToMod=$lineNumber
+					while [[ $lineNumberToMod -gt 0 ]]
+					do
+						eval lineNumberArr[$elementNum]=$lineNumberToMod
+						lineNumberToMod=$(echo "$lineNumberToMod-1"|bc)
+						elementNum=$(echo "$elementNum+1"|bc)
+					done
 				
+					for previousLines in ${lineNumberArr[@]}
+					do
+						lineFromSed=$(sed -n $previousLines'p' $file)
+						if [[ ( ( "$lineFromSed" == "$sectionUnformatted" ) || ( "$previousLines" == "1" ) ) && ( $found != 1 ) ]]
+						then
+							sed "${lineNumber}s/.*/$keyToModify=$valueToModify/" $file
+							found=1
+						fi
+					done
+				done
 			fi
 		fi
 	fi
@@ -184,4 +203,4 @@ then
 fi
 
 # Clean variables
-unset file table set comments section key value modify verbose
+unset file table set comments section key value modify verbose found sectionUnformatted

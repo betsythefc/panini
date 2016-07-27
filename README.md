@@ -5,6 +5,8 @@ panINI (parse all INI) is a bash ini parser that can display or set ini configur
 
 Supports both Bash 3 & 4.
 
+Now supports modifying values that are in sections!
+
 Bash 3 sets variables in sections like:
 
 ```
